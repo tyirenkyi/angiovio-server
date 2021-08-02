@@ -10,4 +10,13 @@ interface PasswordForm {
   email: string,
 }
 
-export { SignUpForm, PasswordForm }
+interface DrugForm {
+  user: string,
+  name: string,
+  dosage: number,
+  interval: number,
+  missed: number,
+  taken: number
+}
+
+export { SignUpForm, PasswordForm, DrugForm }
