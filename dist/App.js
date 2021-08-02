@@ -13,46 +13,32 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
+const uuid_1 = require("uuid");
 const firebase_1 = __importDefault(require("./firebase"));
 const db_1 = __importDefault(require("./db"));
 const app = express_1.default();
 const port = 3000;
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: true }));
-const createTableSchema = 'CREATE TABLE drugs(id text PRIMARY KEY, drug text NOT NULL, dosage integer NOT NULL, interval integer NOT NULL, missed integer NOT NULL, taken integer NOT NULL)';
 app.get('/', (req, res) => {
     res.send('Hello World');
 });
 app.listen(port, () => {
     console.log('Angiovio listening at port 3000');
 });
-// create table
-db_1.default.task((t) => __awaiter(void 0, void 0, void 0, function* () {
-    return t.one(createTableSchema)
-        .then(data => {
-        console.log('table created successfully');
-        return data;
-    })
-        .catch(error => {
-        console.log('failed to create table', error);
-    });
-}))
-    .catch(error => {
-    console.log('failed to create drugs table', error);
-});
 // sign up
-app.post('/signup', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+app.post('/api/signup', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const form = req.body;
         yield firebase_1.default.auth().createUser(form);
         res.status(200).send('Account created successfully.');
     }
     catch (error) {
-        res.status(500).send(`An unexpected error occured, ${error}`);
+        res.status(500).send(`An unexpected error occurred, ${error}`);
     }
 }));
 // update password
-app.post('/changepassword', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+app.post('/api/changepassword', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const form = req.body;
         let uid = '';
@@ -64,7 +50,27 @@ app.post('/changepassword', (req, res) => __awaiter(void 0, void 0, void 0, func
         res.status(200).send('Account updated successfully.');
     }
     catch (error) {
-        res.status(500).send(`An unexpected error occured, ${error}`);
+        res.status(500).send(`An unexpected error occurred, ${error}`);
+    }
+}));
+// add drug
+app.post('/api/adddrug', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const form = req.body;
+        db_1.default.task((t) => __awaiter(void 0, void 0, void 0, function* () {
+            return yield t.any("INSERT INTO drugs VALUES($1, $2, $3, $4, $5, $6, $7)", [uuid_1.v4(), form.user, form.name, form.dosage, form.interval, form.missed, form.taken])
+                .then(data => {
+                console.log('Insert successful');
+                res.status(200).send('Insert successful');
+            })
+                .catch(error => {
+                console.log('failed to insert data', error);
+                res.status(500).send('An error occurred, failed to insert data');
+            });
+        }));
+    }
+    catch (error) {
+        res.status(500).send(`An unexpected error occurred, ${error}`);
     }
 }));
 //# sourceMappingURL=App.js.map
