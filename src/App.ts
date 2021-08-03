@@ -186,3 +186,18 @@ app.delete('/api/drug/', async (req: any, res: any) => {
     res.status(500).send(`An unexpected error occurred, failed to delete data, ${error}`)
   }
 })
+
+// get all drugs
+app.get('/api/alldrugs', async (req: any, res: any) => {
+  try {
+    db.task(async t => {
+      return t.any('SELECT * FROM drugs')
+        .then(data => {
+          console.log('READ successful')
+          res.status(200).send(JSON.stringify(data))
+        })
+    })
+  } catch (error) {
+    res.status(500).send(`An unexpected error occurred, failed to get data, ${error}`)
+  }
+})
