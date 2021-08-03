@@ -19,7 +19,7 @@ app.listen(port, () => {
 })
 
 // db.task(async t => {
-//   return await t.any("CREATE TABLE drugs(id UUID PRIMARY KEY, userId text NOT NULL, name text NOT NULL, dosage integer NOT NULL, interval integer NOT NULL, missed integer NOT NULL, taken integer NOT NULL, repeats integer NOT NULL, createdOn text NOT NULL, updatedOn text NOT NULL)")
+//   return await t.any("CREATE TABLE drugs(id UUID PRIMARY KEY, userId text NOT NULL, name text UNIQUE NOT NULL, dosage integer NOT NULL, interval integer NOT NULL, missed integer NOT NULL, taken integer NOT NULL, repeats integer NOT NULL, createdOn text NOT NULL, updatedOn text NOT NULL)")
 //     .then(data => {
 //       console.log("success");
 //     })
@@ -184,5 +184,20 @@ app.delete('/api/drug/', async (req: any, res: any) => {
     })
   } catch (error) {
     res.status(500).send(`An unexpected error occurred, failed to delete data, ${error}`)
+  }
+})
+
+// get all drugs
+app.get('/api/alldrugs', async (req: any, res: any) => {
+  try {
+    db.task(async t => {
+      return t.any('SELECT * FROM drugs')
+        .then(data => {
+          console.log('READ successful')
+          res.status(200).send(JSON.stringify(data))
+        })
+    })
+  } catch (error) {
+    res.status(500).send(`An unexpected error occurred, failed to get data, ${error}`)
   }
 })
