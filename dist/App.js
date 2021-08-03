@@ -145,4 +145,30 @@ app.put('/api/takedrug', (req, res) => __awaiter(void 0, void 0, void 0, functio
         res.status(500).send(`An unexpected error occurred, failed to get data, ${error}`);
     }
 }));
+// miss drug
+app.put('/api/missdrug', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { userId, name } = req.body;
+        db_1.default.task((t) => __awaiter(void 0, void 0, void 0, function* () {
+            return t.one('SELECT * FROM drugs WHERE userId = $1 AND name = $2', [userId, name])
+                .then((data) => __awaiter(void 0, void 0, void 0, function* () {
+                return t.none("UPDATE drugs SET missed = $1, updatedOn = $2 WHERE userId = $3 AND name = $4", [data.missed + 1, new Date().toString(), userId, name])
+                    .then(result => {
+                    console.log('UPDATE successful');
+                    res.status(200).send('Update successful');
+                })
+                    .catch(error => {
+                    console.log('UPDATE failed', error);
+                    res.status(500).send(`An error occurred, failed to get data, ${error}`);
+                });
+            }));
+        }))
+            .catch(error => {
+            console.log('failed to update drug', error);
+        });
+    }
+    catch (error) {
+        res.status(500).send(`An unexpected error occurred, failed to get data, ${error}`);
+    }
+}));
 //# sourceMappingURL=App.js.map

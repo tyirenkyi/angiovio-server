@@ -140,3 +140,29 @@ app.put('/api/takedrug', async (req: any, res: any) => {
     res.status(500).send(`An unexpected error occurred, failed to get data, ${error}`)
   }
 })
+
+// miss drug
+app.put('/api/missdrug', async (req: any, res: any) => {
+  try {
+    const { userId, name } = req.body;
+    db.task(async t => {
+      return t.one('SELECT * FROM drugs WHERE userId = $1 AND name = $2', [userId, name])
+      .then(async data => {
+        return t.none("UPDATE drugs SET missed = $1, updatedOn = $2 WHERE userId = $3 AND name = $4", [data.missed + 1, new Date().toString(), userId, name])
+          .then(result => {
+            console.log('UPDATE successful');
+            res.status(200).send('Update successful')
+          })
+          .catch(error => {
+            console.log('UPDATE failed', error);
+            res.status(500).send(`An error occurred, failed to get data, ${error}`)
+          })
+      })
+    })
+    .catch(error => {
+      console.log('failed to update drug', error);
+    })
+  } catch (error) {
+    res.status(500).send(`An unexpected error occurred, failed to get data, ${error}`)
+  }
+})
