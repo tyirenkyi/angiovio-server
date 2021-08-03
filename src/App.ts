@@ -72,3 +72,23 @@ app.post('/api/adddrug', async (req: any, res: any) => {
     res.status(500).send(`An unexpected error occurred, ${error}`)
   }
 })
+
+// get drugs
+app.get('/api/drugs/:userId', async (req: any, res: any) => {
+  try {
+    const { userId } = req.params;
+    db.task(async t => {
+      return await t.any("SELECT * FROM drugs WHERE userId = $1", userId)
+        .then(data => {
+          console.log('READ successful');
+          res.status(200).send(JSON.stringify(data))
+        })
+        .catch(error => {
+          console.log('READ failed');
+          res.status(500).send(`An error occurred, failed to get data, ${error}`)
+        })
+    })
+  } catch (error) {
+    res.status(500).send(`An unexpected error occurred, ${error}`)
+  }
+})
