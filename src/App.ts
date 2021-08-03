@@ -155,7 +155,7 @@ app.put('/api/missdrug', async (req: any, res: any) => {
           })
           .catch(error => {
             console.log('UPDATE failed', error);
-            res.status(500).send(`An error occurred, failed to get data, ${error}`)
+            res.status(500).send(`An error occurred, failed to update data, ${error}`)
           })
       })
     })
@@ -164,5 +164,25 @@ app.put('/api/missdrug', async (req: any, res: any) => {
     })
   } catch (error) {
     res.status(500).send(`An unexpected error occurred, failed to get data, ${error}`)
+  }
+})
+
+// delete drug
+app.delete('/api/drug/', async (req: any, res: any) => {
+  try {
+    const { userId, name } = req.body;
+    db.task(async t => {
+      return t.none('DELETE FROM drugs WHERE userId = $1 AND name = $2', [userId, name])
+        .then(data => {
+          console.log('DELETE successful')
+          res.status(200).send('DELETE successful')
+        })
+        .catch(error => {
+          console.log('DELETE failed', error);
+          res.status(500).send(`An error occurred, failed to delete data, ${error}`)
+        })
+    })
+  } catch (error) {
+    res.status(500).send(`An unexpected error occurred, failed to delete data, ${error}`)
   }
 })
