@@ -18,6 +18,13 @@ app.listen(port, () => {
   console.log('Angiovio listening at port 3000')
 })
 
+// db.task(async t => {
+//   return await t.any("CREATE TABLE drugs(id UUID PRIMARY KEY, userId text NOT NULL, name text NOT NULL, dosage integer NOT NULL, interval integer NOT NULL, missed integer NOT NULL, taken integer NOT NULL, repeats integer NOT NULL, createdOn text NOT NULL, updatedOn text NOT NULL)")
+//     .then(data => {
+//       console.log("success");
+//     })
+// })
+
 // sign up
 app.post('/api/signup', async (req: any, res: any) => {
   try {
@@ -51,7 +58,7 @@ app.post('/api/adddrug', async (req: any, res: any) => {
   try {
     const form: DrugForm = req.body;
     db.task(async t => {
-      return await t.any("INSERT INTO drugs VALUES($1, $2, $3, $4, $5, $6, $7)", [uuid(), form.user, form.name, form.dosage, form.interval, form.missed, form.taken])
+      return await t.any("INSERT INTO drugs VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)", [uuid(), form.user, form.name, form.dosage, form.interval, form.missed, form.taken, form.repeats, new Date().toString(), ''])
         .then(data => {
           console.log('Insert successful');
           res.status(200).send('Insert successful');

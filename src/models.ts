@@ -16,7 +16,8 @@ interface DrugForm {
   dosage: number,
   interval: number,
   missed: number,
-  taken: number
+  taken: number,
+  repeats: number
 }
 
 export { SignUpForm, PasswordForm, DrugForm }
