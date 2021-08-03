@@ -58,7 +58,8 @@ app.post('/api/adddrug', async (req: any, res: any) => {
   try {
     const form: DrugForm = req.body;
     db.task(async t => {
-      return await t.any("INSERT INTO drugs VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)", [uuid(), form.user, form.name, form.dosage, form.interval, form.missed, form.taken, form.repeats, new Date().toString(), ''])
+      return await t.any("INSERT INTO drugs VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)",
+      [uuid(), form.user, form.name, form.dosage, form.interval, form.missed, form.taken, form.repeats, new Date().toString(), ''])
         .then(data => {
           console.log('Insert successful');
           res.status(200).send('Insert successful');
@@ -110,5 +111,32 @@ app.get('/api/drug/:userId/:name', async (req: any, res: any) => {
     })
   } catch (error) {
     res.status(500).send(`An unexpected error occurred, ${error}`)
+  }
+})
+
+
+// take drug
+app.put('/api/takedrug', async (req: any, res: any) => {
+  try {
+    const { userId, name } = req.body;
+    db.task(async t => {
+      return t.one('SELECT * FROM drugs WHERE userId = $1 AND name = $2', [userId, name])
+        .then(async data => {
+          return t.none("UPDATE drugs SET taken = $1 WHERE userId = $2 AND name = $3", [data.taken + 1, userId, name])
+            .then(result => {
+              console.log('UPDATE successful');
+              res.status(200).send('Update successful')
+            })
+            .catch(error => {
+              console.log('UPDATE failed', error);
+              res.status(500).send(`An error occurred, failed to get data, ${error}`)
+            })
+        })
+    })
+    .catch(error => {
+      console.log('failed to update drug', error);
+    })
+  } catch (error) {
+    res.status(500).send(`An unexpected error occurred, failed to get data, ${error}`)
   }
 })
