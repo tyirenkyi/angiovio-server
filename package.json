@@ -15,8 +15,11 @@
   "dependencies": {
     "@types/express": "^4.17.12",
     "@types/express-serve-static-core": "^4.17.21",
+    "@types/uuid": "^8.3.1",
     "express": "^4.17.1",
-    "firebase-admin": "^9.11.0"
+    "firebase-admin": "^9.11.0",
+    "pg-promise": "^10.11.0",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "tslint": "^6.1.3",
