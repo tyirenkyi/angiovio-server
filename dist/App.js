@@ -79,4 +79,44 @@ app.post('/api/adddrug', (req, res) => __awaiter(void 0, void 0, void 0, functio
         res.status(500).send(`An unexpected error occurred, ${error}`);
     }
 }));
+// get drugs
+app.get('/api/drugs/:userId', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { userId } = req.params;
+        db_1.default.task((t) => __awaiter(void 0, void 0, void 0, function* () {
+            return yield t.any("SELECT * FROM drugs WHERE userId = $1", userId)
+                .then(data => {
+                console.log('READ successful');
+                res.status(200).send(JSON.stringify(data));
+            })
+                .catch(error => {
+                console.log('READ failed');
+                res.status(500).send(`An error occurred, failed to get data, ${error}`);
+            });
+        }));
+    }
+    catch (error) {
+        res.status(500).send(`An unexpected error occurred, ${error}`);
+    }
+}));
+// get drug
+app.get('/api/drug/:userId/:name', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { userId, name } = req.params;
+        db_1.default.task((t) => __awaiter(void 0, void 0, void 0, function* () {
+            return yield t.any("SELECT * FROM drugs WHERE userId = $1 AND name = $2", [userId, name])
+                .then(data => {
+                console.log('READ successful');
+                res.status(200).send(JSON.stringify(data));
+            })
+                .catch(error => {
+                console.log('READ failed', error);
+                res.status(500).send(`An error occurred, failed to get data, ${error}`);
+            });
+        }));
+    }
+    catch (error) {
+        res.status(500).send(`An unexpected error occurred, ${error}`);
+    }
+}));
 //# sourceMappingURL=App.js.map
