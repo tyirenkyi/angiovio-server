@@ -30,7 +30,7 @@ app.post('/api/signup', async (req: any, res: any) => {
   try {
     const form: SignUpForm = req.body;
     await firebase.auth().createUser(form);
-    res.status(200).send('Account created successfully.')
+    res.status(200).send({"message": "Account created successfully"})
   } catch (error) {
     res.status(500).send(`An unexpected error occurred, ${error}`)
   }
@@ -46,7 +46,7 @@ app.post('/api/changepassword', async (req: any, res: any) => {
     await firebase.auth().updateUser(uid, {
       password: form.password
     });
-    res.status(200).send('Account updated successfully.');
+    res.status(200).send({"message": 'Account updated successfully.'});
   } catch (error) {
     res.status(500).send(`An unexpected error occurred, ${error}`)
   }
@@ -62,7 +62,7 @@ app.post('/api/adddrug', async (req: any, res: any) => {
       [uuid(), form.user, form.name, form.dosage, form.interval, form.missed, form.taken, form.repeats, new Date().toString(), ''])
         .then(data => {
           console.log('Insert successful');
-          res.status(200).send('Insert successful');
+          res.status(200).send({"message": "Insert successful"});
         })
         .catch(error => {
           console.log('failed to insert data', error);
@@ -125,7 +125,7 @@ app.put('/api/takedrug', async (req: any, res: any) => {
           return t.none("UPDATE drugs SET taken = $1 WHERE userId = $2 AND name = $3", [data.taken + 1, userId, name])
             .then(result => {
               console.log('UPDATE successful');
-              res.status(200).send('Update successful')
+              res.status(200).send({"message": 'Update successful'})
             })
             .catch(error => {
               console.log('UPDATE failed', error);
@@ -151,7 +151,7 @@ app.put('/api/missdrug', async (req: any, res: any) => {
         return t.none("UPDATE drugs SET missed = $1, updatedOn = $2 WHERE userId = $3 AND name = $4", [data.missed + 1, new Date().toString(), userId, name])
           .then(result => {
             console.log('UPDATE successful');
-            res.status(200).send('Update successful')
+            res.status(200).send({"message": "Update successful"})
           })
           .catch(error => {
             console.log('UPDATE failed', error);
@@ -175,7 +175,7 @@ app.delete('/api/drug/', async (req: any, res: any) => {
       return t.none('DELETE FROM drugs WHERE userId = $1 AND name = $2', [userId, name])
         .then(data => {
           console.log('DELETE successful')
-          res.status(200).send('DELETE successful')
+          res.status(200).send({"message": "DELETE successful"})
         })
         .catch(error => {
           console.log('DELETE failed', error);
