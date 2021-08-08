@@ -12,6 +12,7 @@ interface PasswordForm {
 
 interface DrugForm {
   user: string,
+  token: string,
   name: string,
   dosage: number,
   interval: number,
