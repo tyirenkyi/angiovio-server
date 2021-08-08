@@ -18,8 +18,19 @@ app.listen(port, () => {
   console.log('Angiovio listening at port 3000')
 })
 
+db.task(async t => {
+  return await t.any("ALTER TABLE drugs ADD CONSTRAINT UQ_UserId_DrugName UNIQUE(userId, name)")
+    .then(data => {
+      console.log("success");
+    })
+    .catch(error => {
+      console.log("Alter operation failed: ", error);
+    })
+})
+
+
 // db.task(async t => {
-//   return await t.any("CREATE TABLE drugs(id UUID PRIMARY KEY, userId text NOT NULL, name text UNIQUE NOT NULL, dosage integer NOT NULL, interval integer NOT NULL, missed integer NOT NULL, taken integer NOT NULL, repeats integer NOT NULL, createdOn text NOT NULL, updatedOn text NOT NULL)")
+//   return await t.any("CREATE TABLE drugs(id UUID PRIMARY KEY, userId text NOT NULL, name text NOT NULL, token TEXT NOT NULL, dosage integer NOT NULL, interval integer NOT NULL, missed integer NOT NULL, taken integer NOT NULL, repeats integer NOT NULL, createdOn text NOT NULL, updatedOn text NOT NULL)")
 //     .then(data => {
 //       console.log("success");
 //     })
@@ -58,8 +69,8 @@ app.post('/api/adddrug', async (req: any, res: any) => {
   try {
     const form: DrugForm = req.body;
     db.task(async t => {
-      return await t.any("INSERT INTO drugs VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)",
-      [uuid(), form.user, form.name, form.dosage, form.interval, form.missed, form.taken, form.repeats, new Date().toString(), ''])
+      return await t.any("INSERT INTO drugs VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)",
+      [uuid(), form.user, form.name, form.token, form.dosage, form.interval, form.missed, form.taken, form.repeats, new Date().toString(), ''])
         .then(data => {
           console.log('Insert successful');
           res.status(200).send({"message": "Insert successful"});

@@ -26,8 +26,17 @@ app.get('/', (req, res) => {
 app.listen(port, () => {
     console.log('Angiovio listening at port 3000');
 });
+db_1.default.task((t) => __awaiter(void 0, void 0, void 0, function* () {
+    return yield t.any("ALTER TABLE drugs ADD CONSTRAINT UQ_UserId_DrugName UNIQUE(userId, name)")
+        .then(data => {
+        console.log("success");
+    })
+        .catch(error => {
+        console.log("Alter operation failed: ", error);
+    });
+}));
 // db.task(async t => {
-//   return await t.any("CREATE TABLE drugs(id UUID PRIMARY KEY, userId text NOT NULL, name text UNIQUE NOT NULL, dosage integer NOT NULL, interval integer NOT NULL, missed integer NOT NULL, taken integer NOT NULL, repeats integer NOT NULL, createdOn text NOT NULL, updatedOn text NOT NULL)")
+//   return await t.any("CREATE TABLE drugs(id UUID PRIMARY KEY, userId text NOT NULL, name text NOT NULL, token TEXT NOT NULL, dosage integer NOT NULL, interval integer NOT NULL, missed integer NOT NULL, taken integer NOT NULL, repeats integer NOT NULL, createdOn text NOT NULL, updatedOn text NOT NULL)")
 //     .then(data => {
 //       console.log("success");
 //     })
@@ -37,7 +46,7 @@ app.post('/api/signup', (req, res) => __awaiter(void 0, void 0, void 0, function
     try {
         const form = req.body;
         yield firebase_1.default.auth().createUser(form);
-        res.status(200).send('Account created successfully.');
+        res.status(200).send({ "message": "Account created successfully" });
     }
     catch (error) {
         res.status(500).send(`An unexpected error occurred, ${error}`);
@@ -53,7 +62,7 @@ app.post('/api/changepassword', (req, res) => __awaiter(void 0, void 0, void 0, 
         yield firebase_1.default.auth().updateUser(uid, {
             password: form.password
         });
-        res.status(200).send('Account updated successfully.');
+        res.status(200).send({ "message": 'Account updated successfully.' });
     }
     catch (error) {
         res.status(500).send(`An unexpected error occurred, ${error}`);
@@ -64,10 +73,10 @@ app.post('/api/adddrug', (req, res) => __awaiter(void 0, void 0, void 0, functio
     try {
         const form = req.body;
         db_1.default.task((t) => __awaiter(void 0, void 0, void 0, function* () {
-            return yield t.any("INSERT INTO drugs VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)", [uuid_1.v4(), form.user, form.name, form.dosage, form.interval, form.missed, form.taken, form.repeats, new Date().toString(), ''])
+            return yield t.any("INSERT INTO drugs VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)", [uuid_1.v4(), form.user, form.name, form.token, form.dosage, form.interval, form.missed, form.taken, form.repeats, new Date().toString(), ''])
                 .then(data => {
                 console.log('Insert successful');
-                res.status(200).send('Insert successful');
+                res.status(200).send({ "message": "Insert successful" });
             })
                 .catch(error => {
                 console.log('failed to insert data', error);
@@ -129,7 +138,7 @@ app.put('/api/takedrug', (req, res) => __awaiter(void 0, void 0, void 0, functio
                 return t.none("UPDATE drugs SET taken = $1 WHERE userId = $2 AND name = $3", [data.taken + 1, userId, name])
                     .then(result => {
                     console.log('UPDATE successful');
-                    res.status(200).send('Update successful');
+                    res.status(200).send({ "message": 'Update successful' });
                 })
                     .catch(error => {
                     console.log('UPDATE failed', error);
@@ -155,7 +164,7 @@ app.put('/api/missdrug', (req, res) => __awaiter(void 0, void 0, void 0, functio
                 return t.none("UPDATE drugs SET missed = $1, updatedOn = $2 WHERE userId = $3 AND name = $4", [data.missed + 1, new Date().toString(), userId, name])
                     .then(result => {
                     console.log('UPDATE successful');
-                    res.status(200).send('Update successful');
+                    res.status(200).send({ "message": "Update successful" });
                 })
                     .catch(error => {
                     console.log('UPDATE failed', error);
@@ -179,7 +188,7 @@ app.delete('/api/drug/', (req, res) => __awaiter(void 0, void 0, void 0, functio
             return t.none('DELETE FROM drugs WHERE userId = $1 AND name = $2', [userId, name])
                 .then(data => {
                 console.log('DELETE successful');
-                res.status(200).send('DELETE successful');
+                res.status(200).send({ "message": "DELETE successful" });
             })
                 .catch(error => {
                 console.log('DELETE failed', error);
@@ -189,6 +198,21 @@ app.delete('/api/drug/', (req, res) => __awaiter(void 0, void 0, void 0, functio
     }
     catch (error) {
         res.status(500).send(`An unexpected error occurred, failed to delete data, ${error}`);
+    }
+}));
+// get all drugs
+app.get('/api/alldrugs', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        db_1.default.task((t) => __awaiter(void 0, void 0, void 0, function* () {
+            return t.any('SELECT * FROM drugs')
+                .then(data => {
+                console.log('READ successful');
+                res.status(200).send(JSON.stringify(data));
+            });
+        }));
+    }
+    catch (error) {
+        res.status(500).send(`An unexpected error occurred, failed to get data, ${error}`);
     }
 }));
 //# sourceMappingURL=App.js.map
